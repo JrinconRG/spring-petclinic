@@ -14,23 +14,17 @@ pipeline {
         sh 'mvn clean install'
       }
     }
-
     stage('Docker Build') {
       agent any
       steps {
         sh 'docker build -t jrincon709/spring-petclinic:latest .'
       }
     }
-
     stage('Docker Push') {
       agent any
       steps {
-        withCredentials([usernamePassword(
-          credentialsId: 'dockerHub',
-          usernameVariable: 'DOCKER_USER',
-          passwordVariable: 'DOCKER_PASS'
-        )]) {
-          sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+        withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+          sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
           sh 'docker push jrincon709/spring-petclinic:latest'
         }
       }
