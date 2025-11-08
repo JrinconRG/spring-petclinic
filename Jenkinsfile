@@ -21,5 +21,19 @@ pipeline {
         sh 'docker build -t jrincon709/spring-petclinic:latest .'
       }
     }
+
+    stage('Docker Push') {
+      agent any
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'dockerHub',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+          sh 'docker push jrincon709/spring-petclinic:latest'
+        }
+      }
+    }
   }
 }
